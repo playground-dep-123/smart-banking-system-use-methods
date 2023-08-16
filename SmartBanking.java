@@ -1,5 +1,3 @@
-
-
 import java.util.Scanner;
 
 public class SmartBanking {
@@ -12,21 +10,20 @@ public class SmartBanking {
         final String COLOR_GREEN_BOLD = "\033[33;1m";
         final String RESET = "\033[0m";
 
-        final String DASHBOARD = " \u1F477Welcome to Smart Banking System";
+        final String DASHBOARD = "\u2795 Welcome to Smart Banking System";
         final String NEW_ACC = "\u2795  Open New Account";
-        final String DEPOSIT_MONEY = "\u1F91D Deposit Money";
-        final String WITHDRAW_MONEY = "\u1F3E7 Withdraw Money";
+        final String DEPOSIT_MONEY = "\u2795 Deposit Money";
+        final String WITHDRAW_MONEY = "\u2795 Withdraw Money";
         final String TRANSFER = "\u1F91D Transfer Money";
         final String CHECK_BALANCE = "🖨 Check Balance";
-        final String DELETE_AC = "🖨 Delete Account";
+        final String DELETE_AC = "\u274C Delete Account";
 
         final String ERROR_MSG = String.format("\t%s%s%s\n", COLOR_RED_BOLD, "%s", RESET);
         final String SUCCESS_MSG = String.format("\t%s%s%s\n", COLOR_GREEN_BOLD, "%s", RESET);
 
         // Arrays
-        String[] accId = new String[0];
-        String[] names = new String[0];
-        Double[] deposits = new Double[0];
+
+        String[][] account = new String[0][];
 
         String screen = DASHBOARD;
 
@@ -81,8 +78,8 @@ public class SmartBanking {
                     break;
                 // Create New Account
                 case NEW_ACC:
-                    System.out.printf("\tNew Student ID: SDB-%05d \n", (accId.length + 1));
-                    String id = String.format("SDB-%05d", accId.length + 1);
+                    System.out.printf("\tNew Student ID: SDB-%05d \n", (account.length + 1));
+                    String id = String.format("SDB-%05d", account.length + 1);
 
                     boolean valid;
                     String name;
@@ -105,49 +102,34 @@ public class SmartBanking {
                         }
                     } while (!valid);
 
-                    String[] newaccIds = new String[accId.length + 1];
-                    String[] newCustomerNames = new String[names.length + 1];
-                    for (int i = 0; i < accId.length; i++) {
-                        newaccIds[i] = accId[i];
-                        newCustomerNames[i] = names[i];
-                    }
-
-                    newaccIds[newaccIds.length - 1] = id;
-                    newCustomerNames[newCustomerNames.length - 1] = name;
-                    accId = newaccIds;
-                    names = newCustomerNames;
-
                     double deposit;
                     do {
                         valid = true;
                         System.out.print("\tEnter Initial Deposit: ");
                         deposit = SCANNER.nextDouble();
                         SCANNER.nextLine();
-                       
-                       
-                       
-                     
 
-                       
                         if (deposit < 5000) {
                             System.out.printf("\t%sInitial deposit should be more than 5000%s\n", COLOR_RED_BOLD,
                                     RESET);
                             valid = false;
-                          
-                            
-                        }
-                        
-    
 
-                        
+                        }
+
                     } while (!valid);
-                    Double[] newDeposits = new Double[deposits.length + 1];
-                    for (int i = 0; i < deposits.length; i++) {
-                        newDeposits[i] = deposits[i];
+
+                    String[][] tempAccounts = new String[account.length + 1][3];
+                    String depositString = String.valueOf(deposit);
+                    for (int i = 0; i < account.length; i++) {
+                        tempAccounts[i] = account[i];
 
                     }
-                    newDeposits[newDeposits.length - 1] = deposit;
-                    deposits = newDeposits;
+
+                    tempAccounts[tempAccounts.length - 1][0] = id;
+                    tempAccounts[tempAccounts.length - 1][1] = name;
+                    tempAccounts[tempAccounts.length - 1][2] = depositString;
+
+                    account = tempAccounts;
 
                     System.out.println();
                     System.out.printf(SUCCESS_MSG,
@@ -159,10 +141,8 @@ public class SmartBanking {
                     break;
 
             }
-            
 
         } while (true);
     }
 
 }
-    
