@@ -99,11 +99,13 @@ public class SmartBanking {
                         continue;
                     screen = DASHBOARD;
                     break;
-
+                ///////////////////////////////////////////////////////////////////////////////
                 case DEPOSIT_MONEY:
-                    accountValidtion();
+                    id = accountValidtion();
+                    System.out.printf("\tCurrent Balance:%s\n", balance(id));
                     double depositAmount = depositValidation(2);
-                    balance(depositAmount, "+");
+                    depositAndWithdraw(depositAmount, "deposit", id);
+                     System.out.printf("\tNew Balance:%s\n", balance(id));
 
                     System.out.print("\tDo you want to continue adding (Y/n)? ");
                     if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))
@@ -117,7 +119,37 @@ public class SmartBanking {
 
     }
 
-    private static void balance(double amount, String operator) {
+    private static void depositAndWithdraw(double amount, String type, String id) {
+        int index=-1;
+        double existBalance=0.0;
+
+        for (int i = 0; i < bankAccount.length; i++) {
+            if (id.equals(bankAccount[i][0])) {
+                index = i;
+                existBalance=Double.valueOf(bankAccount[i][2]);
+            }
+        }
+        switch (type) {
+            case "deposit":
+                existBalance+=amount;
+               bankAccount[index][2]=String.valueOf(existBalance);
+               break;
+                  
+
+        }
+    }
+
+    private static String balance(String id) {
+        String value = "";
+        for (int i = 0; i < bankAccount.length; i++) {
+
+            if (id.equals(bankAccount[i][0])) {
+                value = bankAccount[i][2];
+
+            }
+
+        }
+        return value;
 
     }
 
@@ -148,7 +180,7 @@ public class SmartBanking {
 
     // Deposit Validation
     public static double depositValidation(int type) {
-    
+
         final String INITIALAMOUNT = "\tEnter Initial Deposit:";
         final String DEPOSITAMOUNT = "\tDeposit Amount: ";
         boolean valid;
@@ -205,7 +237,7 @@ public class SmartBanking {
         bankAccount = tempAccounts;
     }
 
-    public static void accountValidtion() {
+    public static String accountValidtion() {
         boolean valid = true;
         String id;
         String accountNumber = "";
@@ -238,8 +270,6 @@ public class SmartBanking {
                 if (id.equals(bankAccount[i][0])) {
                     accountNumber = id;
                     val = true;
-                    System.out.print("\tCurrent Balance:" + bankAccount[i][2]);
-                    System.out.println();
                     break;
                 }
                 val = false;
@@ -253,6 +283,7 @@ public class SmartBanking {
 
             }
         } while (!valid);
+        return id;
 
     }
 
