@@ -10,7 +10,10 @@ public class SmartBanking {
     final static String RESET = "\033[0m";
     final static String ERROR_MSG = String.format("\t%s%s%s\n", COLOR_RED_BOLD, "%s", RESET);
     final static String SUCCESS_MSG = String.format("\t%s%s%s\n", COLOR_GREEN_BOLD, "%s", RESET);
-    static String[][] bankAccount = new String[0][];
+    static String[][] bankAccount = new String[][] {
+            { "SDB-00001", "Kasun", "10000.00" },
+            { "SDB-00002", "Nimal", "25000.00" }
+    };
 
     public static void main(String[] args) {
         final String CLEAR = "\033[H\033[2J";
@@ -24,8 +27,6 @@ public class SmartBanking {
 
         // Arrays
 
-        String[][] account = new String[0][];
-
         String screen = DASHBOARD;
 
         do {
@@ -34,6 +35,7 @@ public class SmartBanking {
                     COLOR_BLUE_BOLD, screen, RESET);
 
             System.out.println("\t" + APP_TITLE + "\n");
+            System.out.println(Arrays.deepToString(bankAccount));
 
             switch (screen) {
                 case DASHBOARD:
@@ -82,28 +84,41 @@ public class SmartBanking {
                 case NEW_ACC:
                     String name;
                     double deposit = 0.0;
-                    System.out.printf("\tNew Student ID: SDB-%05d \n", (account.length + 1));
+                    System.out.printf("\tNew Student ID: SDB-%05d \n", (bankAccount.length + 1));
                     String id = String.format("SDB-%05d", bankAccount.length + 1);
 
                     name = nameValidation();
-                    deposit = depositValidation();
+                    deposit = depositValidation(1);
                     valueInsertToArray(id, name, deposit);
-               
+
                     System.out.println();
                     System.out.printf(SUCCESS_MSG,
-                    String.format("%s:%s has been saved successfully", id, name));
+                            String.format("%s:%s has been saved successfully", id, name));
                     System.out.print("\tDo you want to continue adding (Y/n)? ");
                     if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))
                         continue;
                     screen = DASHBOARD;
                     break;
-                    
 
                 case DEPOSIT_MONEY:
+                    accountValidtion();
+                    double depositAmount = depositValidation(2);
+                    balance(depositAmount, "+");
 
+                    System.out.print("\tDo you want to continue adding (Y/n)? ");
+                    if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))
+                        continue;
+
+                    screen = DASHBOARD;
+                    break;
             }
 
         } while (true);
+
+    }
+
+    private static void balance(double amount, String operator) {
+
     }
 
     // Name Validation Method
@@ -132,21 +147,40 @@ public class SmartBanking {
     }
 
     // Deposit Validation
-    public static double depositValidation() {
+    public static double depositValidation(int type) {
+    
+        final String INITIALAMOUNT = "\tEnter Initial Deposit:";
+        final String DEPOSITAMOUNT = "\tDeposit Amount: ";
         boolean valid;
         double deposit;
-        do {
+        loop: do {
             valid = true;
-            System.out.print("\tEnter Initial Deposit: ");
+            if (type == 1)
+                System.out.print(INITIALAMOUNT);
+            else if (type == 2)
+                System.out.print(DEPOSITAMOUNT);
+
             deposit = SCANNER.nextDouble();
             SCANNER.nextLine();
 
-            if (deposit < 5000) {
-                System.out.printf("\t%sInitial deposit should be more than 5000%s\n", COLOR_RED_BOLD,
-                        RESET);
-                valid = false;
-                continue;
+            switch (type) {
+                case 1:
+                    if (deposit < 5000) {
+                        System.out.printf("\t%sInitial deposit should be more than 5000%s\n", COLOR_RED_BOLD,
+                                RESET);
+                        valid = false;
+                        break;
 
+                    }
+                case 2:
+                    if (deposit < 500) {
+                        System.out.printf("\t%sInsufficient Amount%s\n", COLOR_RED_BOLD,
+                                RESET);
+                        valid = false;
+                        continue loop;
+
+                    } else
+                        break;
             }
 
         } while (!valid);
@@ -169,6 +203,57 @@ public class SmartBanking {
         tempAccounts[tempAccounts.length - 1][2] = depositString;
 
         bankAccount = tempAccounts;
+    }
+
+    public static void accountValidtion() {
+        boolean valid = true;
+        String id;
+        String accountNumber = "";
+        loop: do {
+            valid = true;
+            System.out.print("\tEnter A/C Number: ");
+            id = SCANNER.nextLine().toUpperCase().strip();
+            if (id.isBlank()) {
+                System.out.printf(ERROR_MSG, "ID can't be empty");
+                valid = false;
+                continue;
+            } else if (!id.startsWith("SDB-") || id.length() < 5) {
+                System.out.printf(ERROR_MSG, "Invalid ID format");
+                valid = false;
+                continue;
+            } else {
+                String number = id.substring(4);
+                for (int i = 0; i < number.length(); i++) {
+                    if (!Character.isDigit(number.charAt(i))) {
+                        System.out.printf(ERROR_MSG, "Invalid ID format");
+                        valid = false;
+                        continue;
+                    }
+                }
+            }
+
+            boolean val = false;
+            for (int i = 0; i < bankAccount.length; i++) {
+
+                if (id.equals(bankAccount[i][0])) {
+                    accountNumber = id;
+                    val = true;
+                    System.out.print("\tCurrent Balance:" + bankAccount[i][2]);
+                    System.out.println();
+                    break;
+                }
+                val = false;
+
+            }
+            if (val == false) {
+
+                System.out.printf(ERROR_MSG, "Not Found");
+                valid = false;
+                continue loop;
+
+            }
+        } while (!valid);
+
     }
 
 }
