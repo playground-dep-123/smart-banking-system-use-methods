@@ -21,7 +21,7 @@ public class SmartBanking {
         final String NEW_ACC = "\u2795  Open New Account";
         final String DEPOSIT_MONEY = "\u2795 Deposit Money";
         final String WITHDRAW_MONEY = "\u2795 Withdraw Money";
-        final String TRANSFER = "\u1F91D Transfer Money";
+        final String TRANSFER = "\u2795 Transfer Money";
         final String CHECK_BALANCE = "🖨 Check Balance";
         final String DELETE_AC = "\u274C Delete Account";
 
@@ -88,7 +88,7 @@ public class SmartBanking {
                     String id = String.format("SDB-%05d", bankAccount.length + 1);
 
                     name = nameValidation();
-                    deposit = depositValidation(1);
+                    deposit = depositWithdrawValidation(1);
                     valueInsertToArray(id, name, deposit);
 
                     System.out.println();
@@ -99,13 +99,13 @@ public class SmartBanking {
                         continue;
                     screen = DASHBOARD;
                     break;
-                ///////////////////////////////////////////////////////////////////////////////
+
                 case DEPOSIT_MONEY:
                     id = accountValidtion();
                     System.out.printf("\tCurrent Balance:%s\n", balance(id));
-                    double depositAmount = depositValidation(2);
+                    double depositAmount = depositWithdrawValidation(2);
                     depositAndWithdraw(depositAmount, "deposit", id);
-                     System.out.printf("\tNew Balance:%s\n", balance(id));
+                    System.out.printf("\tNew Balance:%s\n", balance(id));
 
                     System.out.print("\tDo you want to continue adding (Y/n)? ");
                     if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))
@@ -113,6 +113,24 @@ public class SmartBanking {
 
                     screen = DASHBOARD;
                     break;
+                //////////////////////////////////////////////////////
+                case WITHDRAW_MONEY:
+
+                    id = accountValidtion();
+                    System.out.printf("\tCurrent Balance:%s\n", balance(id));
+                    double withdrawAmount = depositWithdrawValidation(3);
+                    depositAndWithdraw(withdrawAmount, "withdraw", id);
+
+                    /* */
+                    System.out.printf("\tNew Balance:%s\n", balance(id));
+
+                    System.out.print("\tDo you want to continue adding (Y/n)? ");
+                    if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))
+                        continue;
+
+                    screen = DASHBOARD;
+                    break;
+
             }
 
         } while (true);
@@ -120,25 +138,41 @@ public class SmartBanking {
     }
 
     private static void depositAndWithdraw(double amount, String type, String id) {
-        int index=-1;
-        double existBalance=0.0;
+
+        int index = -1;
+        double existBalance = 0.0;
 
         for (int i = 0; i < bankAccount.length; i++) {
             if (id.equals(bankAccount[i][0])) {
                 index = i;
-                existBalance=Double.valueOf(bankAccount[i][2]);
+                existBalance = Double.valueOf(bankAccount[i][2]);
             }
         }
-        switch (type) {
+        loop: switch (type) {
             case "deposit":
-                existBalance+=amount;
-               bankAccount[index][2]=String.valueOf(existBalance);
-               break;
-                  
+                existBalance += amount;
+                bankAccount[index][2] = String.valueOf(existBalance);
+                break;
+
+            case "withdraw":
+
+                existBalance -= 500;
+                if (existBalance >= 500) {
+                    existBalance += 500;
+                    existBalance -= amount;
+                    bankAccount[index][2] = String.valueOf(existBalance);
+                    break;
+
+                } else {
+                    System.out.printf("\t%sInsufficient Amount%s\n", COLOR_RED_BOLD,
+                            RESET);
+                    break loop;
+                }
 
         }
     }
 
+    // Currrent Balance
     private static String balance(String id) {
         String value = "";
         for (int i = 0; i < bankAccount.length; i++) {
@@ -179,25 +213,28 @@ public class SmartBanking {
     }
 
     // Deposit Validation
-    public static double depositValidation(int type) {
+    public static double depositWithdrawValidation(int type) {
 
         final String INITIALAMOUNT = "\tEnter Initial Deposit:";
         final String DEPOSITAMOUNT = "\tDeposit Amount: ";
+        final String WITHDRAWAMOUNT = "\tWithdraw Amount: ";
         boolean valid;
-        double deposit;
+        double amount;
         loop: do {
             valid = true;
             if (type == 1)
                 System.out.print(INITIALAMOUNT);
             else if (type == 2)
                 System.out.print(DEPOSITAMOUNT);
+            else if (type == 3)
+                System.out.print(WITHDRAWAMOUNT);
 
-            deposit = SCANNER.nextDouble();
+            amount = SCANNER.nextDouble();
             SCANNER.nextLine();
 
             switch (type) {
                 case 1:
-                    if (deposit < 5000) {
+                    if (amount < 5000) {
                         System.out.printf("\t%sInitial deposit should be more than 5000%s\n", COLOR_RED_BOLD,
                                 RESET);
                         valid = false;
@@ -205,18 +242,29 @@ public class SmartBanking {
 
                     }
                 case 2:
-                    if (deposit < 500) {
-                        System.out.printf("\t%sInsufficient Amount%s\n", COLOR_RED_BOLD,
+                    if (amount < 500) {
+                        System.out.printf("\t%sInsufficient Deposit Amount%s\n", COLOR_RED_BOLD,
                                 RESET);
                         valid = false;
                         continue loop;
 
                     } else
                         break;
+                case 3:
+                    if (amount < 100) {
+                        System.out.printf("\t%sInsufficient Withdraw Amount%s\n", COLOR_RED_BOLD,
+                                RESET);
+                        valid = false;
+                        amount=0;
+                        continue loop;
+
+                    } else
+                        break;
+
             }
 
         } while (!valid);
-        return deposit;
+        return amount;
 
     }
 
