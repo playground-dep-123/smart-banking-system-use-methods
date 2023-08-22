@@ -113,7 +113,7 @@ public class SmartBanking {
 
                     screen = DASHBOARD;
                     break;
-                //////////////////////////////////////////////////////
+                
                 case WITHDRAW_MONEY:
 
                     id = accountValidtion();
@@ -130,11 +130,73 @@ public class SmartBanking {
 
                     screen = DASHBOARD;
                     break;
+///////////////////////////////////////////////////////////
+                    case TRANSFER:
+                    String from_Id = accountValidtion();
+                    System.out.printf("\tFrom A/C Name: %s\n",nameSearch(from_Id));
+                    String to_Id = accountValidtion();
+                    System.out.printf("\tTo A/C Name: %s\n",nameSearch(to_Id));
+                    System.out.printf("\tFrom A/C Balance: %s\n",balance(from_Id));
+                    System.out.printf("\tTo A/C Balance: %s\n",balance(to_Id));
+                    System.out.print("\tEnter Amount:");
+                    double amount=depositWithdrawValidation(4);
+                    depositAndWithdraw(amount,"transfer",from_Id);
+                    transferProcss(from_Id,to_Id,amount);
+                    System.out.printf("\tNew From A/C Balance:%s\n",balance(from_Id));
+                    System.out.printf("\tNew To A/C Balance:%s\n",balance(to_Id));
+                    System.out.print("\tDo you want to continue adding (Y/n)? ");
+                    if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))
+                        continue;
+
+                    screen = DASHBOARD;
+                    break;
+                    
 
             }
 
         } while (true);
 
+    }
+
+    private static void transferProcss(String fromId, String toId, double amount) {
+
+        double amountWithFee=amount+(amount/100*2);
+      for (int i = 0; i < bankAccount.length; i++) {
+            if(fromId.equals(bankAccount[i][0]))
+            {
+                double from_balance=Double.valueOf(bankAccount[i][2]);
+                from_balance-=amountWithFee;
+                bankAccount[i][2]=String.valueOf(from_balance);
+                
+
+            }
+            else if(toId.equals(bankAccount[i][0]))
+            {
+                double to_balance=Double.valueOf(bankAccount[i][2]);
+                to_balance+=amount;
+                bankAccount[i][2]=String.valueOf(to_balance);
+                break;
+                
+            }
+      }
+
+
+        
+       
+    }
+
+    private static String nameSearch(String id) {
+        
+        String name="";
+        for (int i = 0; i < bankAccount.length; i++) {
+            if(id.equals(bankAccount[i][0]))
+            {
+                name=bankAccount[i][1];
+                break;
+            }
+            
+        }
+        return name;
     }
 
     private static void depositAndWithdraw(double amount, String type, String id) {
@@ -161,6 +223,17 @@ public class SmartBanking {
                     existBalance += 500;
                     existBalance -= amount;
                     bankAccount[index][2] = String.valueOf(existBalance);
+                    break;
+
+                } else {
+                    System.out.printf("\t%sInsufficient Amount%s\n", COLOR_RED_BOLD,
+                            RESET);
+                    break loop;
+                }
+            case "transfer":
+                existBalance -= 500;
+                if (existBalance >= 500) {
+                    existBalance += 500;
                     break;
 
                 } else {
@@ -228,6 +301,7 @@ public class SmartBanking {
                 System.out.print(DEPOSITAMOUNT);
             else if (type == 3)
                 System.out.print(WITHDRAWAMOUNT);
+            
 
             amount = SCANNER.nextDouble();
             SCANNER.nextLine();
@@ -260,6 +334,16 @@ public class SmartBanking {
 
                     } else
                         break;
+
+                case 4:
+                 if (amount < 100) {
+                        System.out.printf("\t%sInsufficient Withdraw Amount%s\n", COLOR_RED_BOLD,
+                                RESET);
+                        valid = false;
+                        amount=0;
+                        continue loop;
+                 }
+                    
 
             }
 
