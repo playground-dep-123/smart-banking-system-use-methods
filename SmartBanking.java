@@ -4,16 +4,21 @@ import java.util.Scanner;
 public class SmartBanking {
     private static final Scanner SCANNER = new Scanner(System.in);
 
+    static int deleteCount = 0;
     final static String COLOR_BLUE_BOLD = "\033[34;1m";
     final static String COLOR_RED_BOLD = "\033[31;1m";
     final static String COLOR_GREEN_BOLD = "\033[33;1m";
     final static String RESET = "\033[0m";
     final static String ERROR_MSG = String.format("\t%s%s%s\n", COLOR_RED_BOLD, "%s", RESET);
     final static String SUCCESS_MSG = String.format("\t%s%s%s\n", COLOR_GREEN_BOLD, "%s", RESET);
-    static String[][] bankAccount = new String[][] {
-            { "SDB-00001", "Kasun", "10000.00" },
-            { "SDB-00002", "Nimal", "25000.00" }
-    };
+    // static String[][] bankAccount = new String[][] {
+    //         { "SDB-00001", "Kasun", "10000.00" },
+    //         { "SDB-00002", "Nimal", "25000.00" },
+    //         { "SDB-00003", "Dulshan", "55000.00" },
+    //         { "SDB-00004", "Prasad", "380000.00" },
+    // };
+
+    static String[][] bankAccount = new String[0][];
 
     public static void main(String[] args) {
         final String CLEAR = "\033[H\033[2J";
@@ -84,8 +89,8 @@ public class SmartBanking {
                 case NEW_ACC:
                     String name;
                     double deposit = 0.0;
-                    System.out.printf("\tNew Student ID: SDB-%05d \n", (bankAccount.length + 1));
-                    String id = String.format("SDB-%05d", bankAccount.length + 1);
+                    System.out.printf("\tNew Student ID: SDB-%05d \n", (bankAccount.length + 1 + deleteCount));
+                    String id = String.format("SDB-%05d", bankAccount.length + 1 + deleteCount);
 
                     name = nameValidation();
                     deposit = depositWithdrawValidation(1);
@@ -150,7 +155,7 @@ public class SmartBanking {
 
                     screen = DASHBOARD;
                     break;
-                ///////////////////////////////////////////////////////////
+
                 case CHECK_BALANCE:
                     id = accountValidtion();
                     System.out.printf("\tName: %s\n", nameSearch(id));
@@ -163,10 +168,55 @@ public class SmartBanking {
                     screen = DASHBOARD;
                     break;
 
+                case DELETE_AC:
+                    id = accountValidtion();
+                    name = nameSearch(id);
+                    System.out.printf("\tName: %s\n", nameSearch(id));
+                    System.out.printf("\tCurrent A/C Balance: %s\n", balance(id));
+                    System.out.print("\tAre You Sure to Delete (Y/n)? ");
+                    if (SCANNER.nextLine().strip().toUpperCase().equals("N")) {
+
+                        screen = DASHBOARD;
+                        break;
+                    } else {
+
+                        deleteAc(id);
+                        System.out.printf(SUCCESS_MSG,
+                                String.format("%s:%s has been Deleted successfully", id, name));
+
+                    }
+                    System.out.print("\tDo you want to continue Deleting (Y/n)? ");
+                    if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))
+                        continue;
+
+                    screen = DASHBOARD;
+                    break;
+
             }
 
         } while (true);
 
+    }
+
+    private static void deleteAc(String id) {
+        int index = -1;
+        String[][] temp = new String[bankAccount.length - 1][];
+        for (int i = 0; i < bankAccount.length; i++) {
+            if (id.equals(bankAccount[i][0])) {
+                index = i;
+                break;
+            }
+        }
+        for (int i = 0, k = 0; i < bankAccount.length; i++, k++) {
+
+            if (i == index) {
+                k--;
+                continue;
+            }
+            temp[k] = bankAccount[i];
+        }
+        bankAccount = temp;
+        deleteCount++;
     }
 
     private static double withDrawAmount(String balance) {
@@ -186,11 +236,11 @@ public class SmartBanking {
                 from_balance -= amountWithFee;
                 bankAccount[i][2] = String.valueOf(from_balance);
 
-            } else if (toId.equals(bankAccount[i][0])) {
+            }
+            if (toId.equals(bankAccount[i][0])) {
                 double to_balance = Double.valueOf(bankAccount[i][2]);
                 to_balance += amount;
                 bankAccount[i][2] = String.valueOf(to_balance);
-                break;
 
             }
         }
