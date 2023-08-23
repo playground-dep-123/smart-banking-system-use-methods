@@ -11,12 +11,6 @@ public class SmartBanking {
     final static String RESET = "\033[0m";
     final static String ERROR_MSG = String.format("\t%s%s%s\n", COLOR_RED_BOLD, "%s", RESET);
     final static String SUCCESS_MSG = String.format("\t%s%s%s\n", COLOR_GREEN_BOLD, "%s", RESET);
-    // static String[][] bankAccount = new String[][] {
-    //         { "SDB-00001", "Kasun", "10000.00" },
-    //         { "SDB-00002", "Nimal", "25000.00" },
-    //         { "SDB-00003", "Dulshan", "55000.00" },
-    //         { "SDB-00004", "Prasad", "380000.00" },
-    // };
 
     static String[][] bankAccount = new String[0][];
 
